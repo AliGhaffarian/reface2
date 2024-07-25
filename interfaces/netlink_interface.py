@@ -51,11 +51,12 @@ def update_interface_state(interface_name, state):
     IPR.link('set', index=peer['index'], state=state)
 
 def interface_exists(interface_name):
-    interfaces = IPR.get_links()
-    for interface in interfaces:
-        if interface.get_attr('IFLA_IFNAME') == interface_name:
-            logger.debug(f"{interface_name=} exists")
-            return True
-    logger.debug(f"{interface_name=} doesn't exist")
-    return False
+    try:
+        IPR.link_lookup(ifname=interface_name)[0]
+        return True
+    except IndexError as e:
+        logger.debug(f"{e}")
+        return False
+    logger.critical(f"something wrong happened!!!")
+
 
