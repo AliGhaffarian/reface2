@@ -54,8 +54,8 @@ def interface_exists(interface_name):
     interfaces = IPR.get_links()
     for interface in interfaces:
         if interface.get_attr('IFLA_IFNAME') == interface_name:
-            logger.debug(f"{dev_name=} exists")
+            logger.debug(f"{interface_name=} exists")
             return True
-    logger.debug(f"{dev_name=} doesn't exist")
+    logger.debug(f"{interface_name=} doesn't exist")
     return False
 
