@@ -1,0 +1,5 @@
+python3-libnmap
+python3-pathlib
+python3-pyroute2
+python3-fire
+
