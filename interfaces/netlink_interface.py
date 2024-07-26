@@ -61,12 +61,8 @@ def interface_exists(interface_name):
 
 #TODO ability to pick from vendor
 def set_interface_mac(interface_name, mac):
-    IPR.link('set', ifname='wlan0' , address=mac)
+    IPR.link('set', ifname=interface_name , address=mac)
 
 
-if __name__ == "__main__":
-    update_interface_state('wlan0', 'down')
-    time.sleep(1)
-    set_interface_mac('wlan0', "fa:fa:fa:fa:fa:fa")
-    time.sleep(1)
-    update_interface_state('wlan0', 'up')
+
+
