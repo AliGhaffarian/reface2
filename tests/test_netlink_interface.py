@@ -6,6 +6,7 @@ import sys
 import string
 import random
 import time
+import scapy.all
 sys.path.insert(0, os.path.abspath('..'))
 #../logging_utilities/config.py
 import logging_utilities.config as config
@@ -30,6 +31,16 @@ config = {
         }
 
 IPR = pyroute2.IPRoute()
+
+#list of valid interfaces to manipulate
+#if no allowed interfaces are listed a virtual interface is created
+interfaces_to_manipulate = []
+if len(config["allowed_interfaces_to_manipulate"]) == 0:
+    raise NotImplemented
+else:
+    interfaces_to_manipulate = config["allowed_interfaces_to_manipulate"]
+  
+
 
 def list_interface_names():
     result = []
@@ -59,7 +70,7 @@ def test_interface_exists():
         assert netlink_interface.interface_exists(name) == False
         logger.debug("[+] passed on {name=}, expected to be False")
 
-    logger.info("[+] interface_exists passed")
+    logger.info("[+] passed")
 
 def dump_info_for(interface_name):
     interface_info, = IPR.link('dump', ifname=interface_name)
@@ -73,7 +84,7 @@ def dump_info_for(interface_name):
 
 def test_update_interface_state():
     def flip_state_of_all_interfaces():
-        for interface in interfaces:
+        for interface in interfaces_to_manipulate:
             interface_info = dump_info_for(interface)
 
             if interface_info is None:
@@ -93,21 +104,33 @@ def test_update_interface_state():
                 logger.critical(f"un expected event!!! {interface_info['state']=}")
 
     
-    interfaces = []
-
-    if len(config["allowed_interfaces_to_manipulate"]) == 0:
-        raise NotImplemented
-    else:
-        interfaces = config["allowed_interfaces_to_manipulate"]
-        
+      
     flip_state_of_all_interfaces()
     flip_state_of_all_interfaces()
     
-    logger.info(f"[+] update_interface_state passed")
+    logger.info(f"[+] passed")
 
+def test_change_interface_mac():
+    for interface_name in interfaces_to_manipulate:
+        netlink_interface.update_interface_state(interface_name, 'down')
+        time.sleep(config['interface_change_state_sleep'])
+        if(dump_info_for(interface_name)['state'] == 'up'):
+            logger.warning(f"{interface_name=} didn't go down for mac change")
 
+        mac = str(scapy.all.RandMAC())
+        logger.debug(f"setting {mac=} for interface{interface_name=}")
+        netlink_interface.set_interface_mac(interface_name, mac)
+        netlink_interface.update_interface_state(interface_name, 'up')
+        time.sleep(config['interface_change_state_sleep'])
+        
+        if(dump_info_for(interface_name)['state'] == 'down'):
+            logger.warning(f"{interface_name=} didn't startup")
+        
+        assert dump_info_for(interface_name).get_attr('IFLA_ADDRESS') == mac
+        
+    logger.info("[+] passed")
 
 if __name__ == "__main__":
     test_interface_exists()
     test_update_interface_state()
-
+    test_change_interface_mac()
