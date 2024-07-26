@@ -8,7 +8,7 @@ import logging
 import os
 import colorlog
 import sys
-
+import time
 sys.path.insert(0, os.path.abspath('..'))
 #../logging_utilities/config.py
 import logging_utilities.config as config
@@ -59,4 +59,14 @@ def interface_exists(interface_name):
         return False
     logger.critical(f"something wrong happened!!!")
 
+#TODO ability to pick from vendor
+def set_interface_mac(interface_name, mac):
+    IPR.link('set', ifname='wlan0' , address=mac)
 
+
+if __name__ == "__main__":
+    update_interface_state('wlan0', 'down')
+    time.sleep(1)
+    set_interface_mac('wlan0', "fa:fa:fa:fa:fa:fa")
+    time.sleep(1)
+    update_interface_state('wlan0', 'up')
