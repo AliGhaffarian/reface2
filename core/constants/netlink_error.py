@@ -1,0 +1,77 @@
+"""
+nelink error codes and error messages
+"""
+
+NLE_SUCCESS           = 0x00
+NLE_FAILURE           = 0x01
+NLE_INTR              = 0x02
+NLE_BAD_SOCK          = 0x03
+NLE_AGAIN             = 0x04
+NLE_NOMEM             = 0x05
+NLE_EXIST             = 0x06
+NLE_INVAL             = 0x07
+NLE_RANGE             = 0x08
+NLE_MSGSIZE           = 0x09
+NLE_OPNOTSUPP         = 0x0A
+NLE_AF_NOSUPPORT      = 0x0B
+NLE_OBJ_NOTFOUND      = 0x0C
+NLE_NOATTR            = 0x0D
+NLE_MISSING_ATTR      = 0x0E
+NLE_AF_MISMATCH       = 0x0F
+NLE_SEQ_MISMATCH      = 0x10
+NLE_MSG_OVERFLOW      = 0x11
+NLE_MSG_TRUNC         = 0x12
+NLE_NOADDR            = 0x13
+NLE_SRCRT_NOSUPPORT   = 0x14
+NLE_MSG_TOOSHORT      = 0x15
+NLE_MSGTYPE_NOSUPPORT = 0x16
+NLE_OBJ_MISMATCH      = 0x17
+NLE_NOCACHE           = 0x18
+NLE_BUSY              = 0x19
+NLE_PROTO_MISMATCH    = 0x1A
+NLE_NOACCESS          = 0x1B
+NLE_PERM              = 0x1C
+NLE_PKTLOC_FILE       = 0x1D
+NLE_PARSE_ERR         = 0x1E
+NLE_NODEV             = 0x1F
+NLE_IMMUTABLE         = 0x20
+NLE_DUMP_INTR         = 0x21
+NLE_ATTRSIZE          = 0x22
+
+error_to_string = {
+        NLE_SUCCESS           : 'NLE_SUCCESS',
+        NLE_FAILURE           : 'NLE_FAILURE',
+        NLE_INTR              : 'NLE_INTR',
+        NLE_BAD_SOCK          : 'NLE_BAD_SOCK',
+        NLE_AGAIN             : 'NLE_AGAIN',
+        NLE_NOMEM             : 'NLE_NOMEM',
+        NLE_EXIST             : 'NLE_EXIST',
+        NLE_INVAL             : 'NLE_INVAL',
+        NLE_RANGE             : 'NLE_RANGE',
+        NLE_MSGSIZE           : 'NLE_MSGSIZE',
+        NLE_OPNOTSUPP         : 'NLE_OPNOTSUPP',
+        NLE_AF_NOSUPPORT      : 'NLE_AF_NOSUPPORT',
+        NLE_OBJ_NOTFOUND      : 'NLE_OBJ_NOTFOUND',
+        NLE_NOATTR            : 'NLE_NOATTR',
+        NLE_MISSING_ATTR      : 'NLE_MISSING_ATTR',
+        NLE_AF_MISMATCH       : 'NLE_AF_MISMATCH',
+        NLE_SEQ_MISMATCH      : 'NLE_SEQ_MISMATCH',
+        NLE_MSG_OVERFLOW      : 'NLE_MSG_OVERFLOW',
+        NLE_MSG_TRUNC         : 'NLE_MSG_TRUNC',
+        NLE_NOADDR            : 'NLE_NOADDR',
+        NLE_SRCRT_NOSUPPORT   : 'NLE_SRCRT_NOSUPPORT',
+        NLE_MSG_TOOSHORT      : 'NLE_MSG_TOOSHORT',
+        NLE_MSGTYPE_NOSUPPORT : 'NLE_MSGTYPE_NOSUPPORT',
+        NLE_OBJ_MISMATCH      : 'NLE_OBJ_MISMATCH',
+        NLE_NOCACHE           : 'NLE_NOCACHE',
+        NLE_BUSY              : 'NLE_BUSY',
+        NLE_PROTO_MISMATCH    : 'NLE_PROTO_MISMATCH',
+        NLE_NOACCESS          : 'NLE_NOACCESS',
+        NLE_PERM              : 'NLE_PERM',
+        NLE_PKTLOC_FILE       : 'NLE_PKTLOC_FILE',
+        NLE_PARSE_ERR         : 'NLE_PARSE_ERR',
+        NLE_NODEV             : 'NLE_NODEV',
+        NLE_IMMUTABLE         : 'NLE_IMMUTABLE',
+        NLE_DUMP_INTR         : 'NLE_DUMP_INTR',
+        NLE_ATTRSIZE          : 'NLE_ATTRSIZE'
+        }
