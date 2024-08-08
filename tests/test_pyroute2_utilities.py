@@ -9,12 +9,12 @@ import time
 import scapy.all
 
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 #../logging_utilities/config.py
-import utilities.logging_utilities.config as config
-import utilities.pyroute2_utilities as pyroute2_utilities
-import core.constants.linux_errors as linux_errors
-import core.constants.mac_templates as mac_templates
+import reface2.utilities.logging_utilities.config as config
+import reface2.utilities.pyroute2_utilities as pyroute2_utilities
+import reface2.utilities.constants.linux_errors as linux_errors
+import reface2.utilities.constants.mac_templates as mac_templates
 #---logger setup---
 FILENAME = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger(FILENAME)
