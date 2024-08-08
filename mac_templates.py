@@ -1,3 +1,24 @@
+import random
+
+def random_mac_template(vendor = None):
+    """
+    if vendor is none a random template from any vendor is returned
+    """
+    if vendor is None:
+        #return a random mac templace from any vendor
+        return random.choice(
+                templates[
+                    random.choice(list(templates.keys()))
+                         ]
+                )
+    if vendor not in templates.keys():
+        raise Exception(f"vendor not supported, supported vendors{templates.keys()}")
+    return random.choice(templates[vendor])
+
+
+
+
+
 templates = {
         "apple" : ['00:03:93',
 '00:05:02',
