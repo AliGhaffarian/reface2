@@ -94,15 +94,17 @@ def test_change_mac():
     for interface in interfaces_to_manipulate:
         test_mac = new_mac_for_interface(interface)
         interface_state = ipr.poll(ipr.link, "dump", ifname = interface ,timeout=conf[TIMEOUT])[0]\
-                .get_attr("IFLA_OPERSTATE")
+                ['state']
+        logger.debug(f"{interface} is expected to be {interface_state} after changing the mac")
 
         errno = pyroute2_utilities.change_mac(interface, test_mac)
         if errno:
             logger.warning(f"[-] unexpected error on change mac {linux_errors.error_to_string[errno]}")
 
         interdump = ipr.poll(ipr.link, "dump", ifname = interface)[0]
+        logger.debug(f"dump of {interface=} after changing the mac: {interdump}")
         #theres the possibility of errno being non-zero thats if shutting down the interface fails
-        assert interdump.get_attr("IFLA_OPERSTATE") == interface_state
+        assert interdump['state'] == interface_state
         assert interdump.get_attr("IFLA_ADDRESS") == test_mac
 
     #try to change mac of non existent interface
@@ -125,4 +127,6 @@ def test_change_mac():
 
 
 if __name__ == "__main__":
+    stdout_handler.setLevel("DEBUG")
+    pyroute2_utilities.stdout_handler.setLevel("DEBUG")
     test_change_mac()
