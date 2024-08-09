@@ -34,6 +34,7 @@ def interface_list():
     for info in ipr.poll(ipr.link, "dump"):
         dump=info[0]
         result.append(dump.get_attrs("IFLA_IFNAME")[0])
+    logger.debug(f"list of interfaces: {result=}")
     return result
 
 def change_mac(interface_name : str, new_mac : str)->bool:
@@ -44,6 +45,7 @@ def change_mac(interface_name : str, new_mac : str)->bool:
         return linux_errors.ENODEV
 
     mylink = ipr.poll(ipr.link, "dump", ifname=interface_name, timeout=conf[TIMEOUT])[0]
+    logger.debug(f"dumped info for interface {interface_name=}")
 
     current_mac = ""
     perm_mac = ""
@@ -51,19 +53,18 @@ def change_mac(interface_name : str, new_mac : str)->bool:
     for attr in mylink['attrs']:
         if attr[0] == 'IFLA_ADDRESS':
             current_mac = attr[1]
+            logger.debug(f"current mac of {interface_name}: {current_mac=}")
             if new_mac == current_mac :
                 logger.info("current mac is new_mac no need to do anything")
                 return 0
             obtained_cred += 1
 
-        if attr[0] == 'IFLA_PERM_ADDRESS':
-            perm_mac = attr[1]
-            obtained_cred += 1
-
-        if obtained_cred == 2:
+        if obtained_cred == 1:
             break
  
+    result = ""
     try:
+        logger.debug(f"trying to set mac for {interface_name=}, {new_mac=}")
         result = ipr.poll(ipr.link, "set", ifname=interface_name, address=new_mac, timeout =conf[TIMEOUT])[0]
         logger.debug(f"result of set mac {result}")
     except pyroute2.NetlinkError as e:
@@ -71,20 +72,22 @@ def change_mac(interface_name : str, new_mac : str)->bool:
             logger.critical(e)
             return e.code
 
-            logger.info(f"{interface_name} is busy shutting down the interface")
+        logger.info(f"{interface_name} is busy shutting down the interface")
 
+        temp_result = ipr.poll(ipr.link, "set", ifname=interface_name, state="down", timeout=conf[TIMEOUT])[0]
+        if temp_result['error']:
+            logger.error(f"failed to shutdown {interface_name}")
+            return  temp_result['error']
+        logger.debug(f"result of shutting down the interface: {temp_result}")
 
-            temp_result = ipr.poll(ipr.link, "set", ifname=interface_name, state="down", timeout=conf[TIMEOUT])[0]
-            if temp_result['error']:
-                logger.error(f"failed to shutdown {interface_name}")
-                return  temp_result['error']
-            logger.debug(f"result of shutting down the interface: {temp_result}")
-
-            result = ipr.poll(ipr.link, "set", ifname=interface_name, address=new_mac, timeout =conf[TIMEOUT])[0]
-            logger.debug(f"result of set mac : {result}")
-            
-            temp_result = ipr.poll(ipr.link, "set", ifname=interface_name, state="up", timeout=conf[TIMEOUT])[0]
-            logger.debug(f"result of starting up the interface: {temp_result}")
+        result = ipr.poll(ipr.link, "set", ifname=interface_name, address=new_mac, timeout =conf[TIMEOUT])[0]
+        logger.debug(f"result of set mac : {result}")
+        
+        temp_result = ipr.poll(ipr.link, "set", ifname=interface_name, state="up", timeout=conf[TIMEOUT])[0]
+        logger.debug(f"result of starting up the interface: {temp_result}")
+    except Exception as e:
+        logger.critical(f"{e}")
+        return e.code
     
     #return error code, usually 0
     return result['error']
