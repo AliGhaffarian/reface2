@@ -1,0 +1,4 @@
+libnmap
+pyroute2
+scapy
+pickle
