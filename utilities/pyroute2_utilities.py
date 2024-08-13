@@ -6,6 +6,8 @@ sys.path.insert(0, os.path.abspath("../../"))
 import errno
 
 import reface2.utilities.logging_utilities.config as config
+import reface2.utilities.shell_utilities as shell_utilities
+import reface2.utilities.constants.sysctl_params as sysctl_params
 
 
 FILENAME = os.path.basename(__file__).split('.')[0]
@@ -80,6 +82,7 @@ def change_mac(interface_name : str, new_mac : str)->bool:
         result = ipr.poll(ipr.link, "set", ifname=interface_name, address=new_mac, timeout =conf[TIMEOUT])[0]
         logger.debug(f"result of set mac : {result}")
         
+        logger.info(f"starting up {interface_name}")
         temp_result = ipr.poll(ipr.link, "set", ifname=interface_name, state="up", timeout=conf[TIMEOUT])[0]
         logger.debug(f"result of starting up the interface: {temp_result}")
     except Exception as e:
@@ -89,16 +92,31 @@ def change_mac(interface_name : str, new_mac : str)->bool:
     return result['error']
 
 
-def set_host_data(ifname, ip, mac, ip_netmask=32, ttl=None):
+def set_host_data(ifname, ip, mac, netmask=32, ttl=None, mtu=None):
     """
     adds ip address and sets mac address on the interface
+    TODO make this atomic
     """
-    try:
-        ipr.addr("add", index=ipr.link_lookup(ifname=ifname)[0], address=ip, prefixlen=ip_netmask)
-    except Exception as e:
-        if e.code != EEXIST:
-            raise e
+    
+    #get a backup of interface state
+
+       
+    if ttl is not None:
+        shell_utilities.set_sysctl_param(sysctl_params.IPV4_DEFAULT_TTL, ttl)
+    
+    if mtu is not None:
+        ipr.poll(ipr.link, "set", index=ipr.link_lookup(ifname="wlan0")[0], mtu=mtu)
+
     change_mac(ifname, mac)
+
+    try:
+        ipr.poll(ipr.addr, "add", index=ipr.link_lookup(ifname=ifname)[0], address=ip, prefixlen=netmask)
+    except Exception as e:
+        if e.code != errno.EEXIST:
+            raise e
+
+        
+    #if backup is true rollback
 
 def switch_to_ip(ifname, ip, netmask):
     #check all routes for ifname
