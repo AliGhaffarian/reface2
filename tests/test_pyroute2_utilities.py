@@ -7,13 +7,13 @@ import string
 import random
 import time
 import scapy.all
+import errno
 
 
 sys.path.insert(0, os.path.abspath('../..'))
 #../logging_utilities/config.py
 import reface2.utilities.logging_utilities.config as config
 import reface2.utilities.pyroute2_utilities as pyroute2_utilities
-import reface2.utilities.constants.linux_errors as linux_errors
 import reface2.utilities.constants.mac_templates as mac_templates
 #---logger setup---
 FILENAME = os.path.basename(__file__).split('.')[0]
@@ -97,13 +97,16 @@ def test_change_mac():
                 ['state']
         logger.debug(f"{interface} is expected to be {interface_state} after changing the mac")
 
-        errno = pyroute2_utilities.change_mac(interface, test_mac)
-        if errno:
-            logger.warning(f"[-] unexpected error on change mac {linux_errors.error_to_string[errno]}")
+        try:
+            err = pyroute2_utilities.change_mac(interface, test_mac)
+            assert err == 0
+        except Exception as e:
+            logger.critical(f"[-] unexpected exception {e}")
+            return False
 
         interdump = ipr.poll(ipr.link, "dump", ifname = interface)[0]
         logger.debug(f"dump of {interface=} after changing the mac: {interdump}")
-        #theres the possibility of errno being non-zero thats if shutting down the interface fails
+        #theres the possibility of err being non-zero thats if shutting down the interface fails
         assert interdump['state'] == interface_state
         assert interdump.get_attr("IFLA_ADDRESS") == test_mac
 
@@ -115,18 +118,26 @@ def test_change_mac():
                     )
                 )
 
-        errno = pyroute2_utilities.change_mac(interface, test_mac)
-        assert errno == linux_errors.ENODEV
+        try:
+            err = pyroute2_utilities.change_mac(interface, test_mac)
+            logger.critical(f"function success on invalid args")
+            return False
+        except Exception as e:
+            assert e.args[0] == errno.ENODEV
     
     #try to change mac of interface to current interface
     for interface in interfaces_to_manipulate:
-        interface_mac = ipr.poll(ipr.link, "dump", ifname=interface)[0].get_attr("IFLA_ADDRESS")
-        errno = pyroute2_utilities.change_mac(interface, interface_mac)
-        assert errno == 0
+        interdump = ipr.poll(ipr.link, "dump", ifname=interface)[0]
+        interface_mac = interdump.get_attr("IFLA_ADDRESS")
+        interface_state = interdump['state']
+
+        err = pyroute2_utilities.change_mac(interface, interface_mac)
+        assert interface_state == ipr.link("dump", ifname=interface)[0]['state']
+        assert err == 0
     logger.info("[+] passed")
 
+def set_host_data():
+    raise NotImplementedError
 
 if __name__ == "__main__":
-    stdout_handler.setLevel("DEBUG")
-    pyroute2_utilities.stdout_handler.setLevel("DEBUG")
     test_change_mac()
