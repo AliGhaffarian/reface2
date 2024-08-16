@@ -186,7 +186,7 @@ def set_host_data(ifname, ip, mac, netmask=32, ttl=None, mtu=None)->bool:
     
     if mtu is not None:
         try:
-            poll_info = ipr.poll(ipr.link, "set", index=ipr.link_lookup(ifname="wlan0")[0], mtu=mtu)[0]
+            poll_info = ipr.poll(ipr.link, "set", index=ipr.link_lookup(ifname=ifname)[0], mtu=mtu)[0]
         except Exception as e:
             roll_back_interface_to_state(ifname, last_interface_state)
             raise e
