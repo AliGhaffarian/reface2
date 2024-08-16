@@ -178,10 +178,10 @@ def set_host_data(ifname, ip, mac, netmask=32, ttl=None, mtu=None)->bool:
     last_interface_state = simple_interface_dump(ifname)
      
     if ttl is not None:
-        exit_info = shell_utilities.set_sysctl_param(sysctl_params.IPV4_DEFAULT_TTL, ttl)
-        if exit_info.returncode:
+        err = shell_utilities.set_sysctl_param(sysctl_params.IPV4_DEFAULT_TTL, ttl)
+        if err:
             roll_back_interface_to_state(ifname, last_interface_state)
-            raise Exception(1, "error setting ttl")
+            raise Exception(err, "error setting ttl")
             
     
     if mtu is not None:
