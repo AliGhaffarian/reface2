@@ -14,4 +14,7 @@ def set_sysctl_param(param, value):
     if not isinstance(value,int):
         e = Exception(errno.EINVAL, os.strerror(errno.EINVAL))
         raise e
-    return subprocess.run(["sudo", "sysctl", f"{param}={value}"], stdout=subprocess.DEVNULL)
+    out = subprocess.check_output(["sudo", "sysctl", f"{param}={value}"]).decode().strip()
+    if out != f"{param} = {value}":
+        return 1
+    return 0
